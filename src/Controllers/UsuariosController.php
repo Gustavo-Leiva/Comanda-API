@@ -4,10 +4,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Usuario;
-// use Autenticador;
+
 
 require '../src/Clases/Usuario.php';
-// require_once '../src/Clases/Autenticador.php';
+
 
 class UsuariosController
 {

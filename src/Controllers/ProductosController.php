@@ -4,11 +4,10 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Producto;
-// use Autenticador;
-// use Usuario;
+
 
 require '../src/Clases/Producto.php';
-// require_once '../src/Clases/Autenticador.php';
+
 
 class ProductosController
 {
