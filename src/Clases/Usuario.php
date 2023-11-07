@@ -21,19 +21,31 @@ class Usuario{
 
 
     //ok 
+    // public function insertarUsuario()
+	// {
+	// 	$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
+	// 	$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO usuarios (nombre,apellido,tipo, sector)values('$this->nombre','$this->apellido','$this->tipo', '$this->sector')");
+	// 	$consulta->execute();
+	// 	return $objetoAccesoDato->retornarUltimoIdInsertado();
+	// }
+
     public function insertarUsuario()
-	{
-		$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO usuarios (nombre,apellido,tipo, sector)values('$this->nombre','$this->apellido','$this->tipo', '$this->sector')");
-		$consulta->execute();
-		return $objetoAccesoDato->retornarUltimoIdInsertado();
-	}
+    {
+        $objAccesoDatos = AccesoDatos::obtenerConexionDatos();
+        $consulta = $objAccesoDatos->retornarConsulta("INSERT INTO usuarios (nombre, apellido,tipo, sector) VALUES (:nombre, :apellido,:tipo,:sector)");
+        $consulta->bindValue(':nombre', $this->nombre, PDO::PARAM_STR);
+        $consulta->bindValue(':apellido', $this->apellido, PDO::PARAM_STR);
+        $consulta->bindValue(':tipo', $this->tipo, PDO::PARAM_STR);
+        $consulta->bindValue(':sector', $this->sector, PDO::PARAM_STR);
+        $consulta->execute();
+        return $objAccesoDatos->retornarUltimoIdInsertado();
+    }
 
 
     public static function obtenerTodos()
 	{
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-        // $consulta =$objetoAccesoDato->RetornarConsulta("select id as id, nombre as nombre, apellido as apellido, tipo as tipo, sub_tipo as subTipo, sector as sector, email as email, contraseña as password, token as token, fecha_registro as fechaRegistro from usuarios");
+       
         $consulta =$objetoAccesoDato->retornarConsulta("select id , nombre, apellido, tipo,sector from usuarios");
         $consulta->execute();
         $arrayObtenido = array();
