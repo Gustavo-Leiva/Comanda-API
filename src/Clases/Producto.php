@@ -11,7 +11,7 @@ class Producto
     public $sector;
     public $precio;
 
-    public function __construct($id = null,$descripcion ='', $sector ='', $precio =0)
+    public function __construct($descripcion ='', $sector ='', $precio =0,$id = null,)
     {
         $this->descripcion = $descripcion;
         $this->sector = $sector;
@@ -109,6 +109,6 @@ class Producto
         }
         return $array;
     }
-  
+
 }
 ?>

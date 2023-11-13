@@ -4,7 +4,7 @@ class Mesa
     public $id;
     public $estado;
 
-    public function __construct($id = null, $estado='')
+    public function __construct($estado,$id=null)
     {
         $this->estado = $estado;
         if($id != null){
@@ -16,10 +16,9 @@ class Mesa
     public function altaMesa()
     {
         $objetoAccesoDatos = AccesoDatos::obtenerConexionDatos();
-        $consulta = $objetoAccesoDatos->RetornarConsulta("INSERT INTO mesas (estado) VALUES (:estado)");
-        $consulta->bindValue(':estado', $this->estado, PDO::PARAM_STR);
-        $consulta->execute();
-        return $objetoAccesoDatos->RetornarUltimoIdInsertado();
+        $consulta =$objetoAccesoDatos->retornarConsulta("INSERT into mesas(estado)values('$this->estado')");
+		$consulta->execute();
+        return $objetoAccesoDatos->retornarUltimoIdInsertado();
     }
   
 
@@ -32,7 +31,7 @@ class Mesa
         $mesas = array();
         $arrayObtenido = $consulta->fetchAll(PDO::FETCH_OBJ);
         foreach($arrayObtenido as $i){
-            $mesa = new Mesa($i->id , $i->estado);
+            $mesa = new Mesa($i->estado,$i->id);
             $mesas[] = $mesa;
         }
         return $mesas;
