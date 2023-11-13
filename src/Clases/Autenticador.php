@@ -6,7 +6,7 @@ require_once '../src/Clases/Usuario.php';
 
 class Autenticador
 {
-    private static $claveSecreta = "miClaveSecreta123";
+    private static $claveSecreta = "gustavoLeiva";
     private static $tipoEncriptacion = "HS256";
 
     public static function definir_token($id, $email){
