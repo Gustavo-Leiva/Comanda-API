@@ -14,7 +14,7 @@ class Autenticador
         $payload = array(
          
             "iat" => $time, //Tiempo en que inicia el token
-            "exp" => $time + (60*60*24), //Tiempo de expiracion del token (1 dia)
+            "exp" => $time + (60*60*24*7), // Validez del token por 7 días
             "data" => [
                 "id" => $id,
                 "email" => $email,
