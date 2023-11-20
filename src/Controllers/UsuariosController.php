@@ -107,6 +107,90 @@ class UsuariosController
         $response->getBody()->write($retorno);
         return $response;
     }
+
+    // public static function GET_TraerUsuarioId(Request $request, Response $response, array $args){
+    //     $param = $request->getQueryParams();
+    //     if(!isset($param['token'])){
+    //         $retorno = json_encode(array("mensaje" => "Token necesario"));
+    //     }
+
+    //    elseif (!isset($param['id_usuario'])) {
+    //     $retorno = json_encode(array("mensaje" => "Se requiere el ID del usuario"));
+    //    }
+
+
+    //     else{
+    //         $token = $param['token'];
+    //         $respuesta = Autenticador::validar_token($token, "Admin");
+    //         if($respuesta == "Validado"){
+    //             $idUsuario = $param['id_usuario'];
+    //             $usuarios = Usuario::traer_un_usuarioId($idUsuario);
+    //             $usuariosFiltrados = Usuario::filtrar_para_mostrar($usuarios);
+    //             $retorno = json_encode(array("ListadoUsuarios"=>$usuariosFiltrados));
+    //         }
+    //         else{
+    //             $retorno = json_encode(array("mensaje" => $respuesta));
+    //         }
+    //     }
+    //     $response->getBody()->write($retorno);
+    //     return $response;
+    // }
+
+
+    public static function GET_TraerUsuarioId(Request $request, Response $response, array $args){
+        $param = $request->getQueryParams();
+                
+        if (!isset($param['token'])) {
+            $retorno = json_encode(array("mensaje" => "Token necesario"));
+        } elseif (!isset($param['id_usuario'])) {
+           $retorno = json_encode(array("mensaje" => "Se requiere el ID del usuario"));
+        } else {
+            $token = $param['token'];
+            $respuesta = Autenticador::validar_token($token, "Admin");
+            if ($respuesta == "Validado") {
+                $idUsuario = $param['id_usuario'];
+                $usuarios = Usuario::traer_un_usuarioId($idUsuario);           
+                if ($usuarios !== null) {
+                    $usuariosFiltrados = Usuario::filtrar_para_mostrar($usuarios);
+                    $retorno = json_encode(array("ListadoUsuarios" => $usuariosFiltrados));
+                } else {
+                    $retorno = json_encode(array("mensaje" => "Usuario no encontrado"));
+                }
+            } else {
+                $retorno = json_encode(array("mensaje" => $respuesta));
+            }
+        }
+        $response->getBody()->write($retorno);
+        return $response;
+    }
+
+
+    //sin validar
+    // public static function GET_TraerUsuarioId(Request $request, Response $response, array $args){
+    //     $param = $request->getQueryParams();
+                
+    //     if (!isset($param['token'])) {
+    //         $retorno = json_encode(array("mensaje" => "Token necesario"));
+    //     } elseif (!isset($param['id_usuario'])) {
+    //        $retorno = json_encode(array("mensaje" => "Se requiere el ID del usuario"));
+    //     } else {
+    //         $token = $param['token'];
+    //         $respuesta = Autenticador::validar_token($token, "Admin");
+    //         if ($respuesta == "Validado") {
+    //             $idUsuario = $param['id_usuario'];
+    //             $usuarios = Usuario::traer_un_usuarioId($idUsuario);
+    //             $retorno = json_encode(array("usuario"=>$usuarios));
+    
+    //         } else {
+    //             $retorno = json_encode(array("mensaje" => $respuesta));
+    //         }
+    //     }
+    //     $response->getBody()->write($retorno);
+    //     return $response;
+    // }
+    
+
+
     public static function GET_GuardarEnCSV(Request $request, Response $response, array $args){
         $path = "Usuarios.csv";
         $param = $request->getQueryParams();
@@ -206,5 +290,29 @@ class UsuariosController
     }
    
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ?>

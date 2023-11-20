@@ -4,11 +4,11 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Producto;
-// use Autenticador;
+use Autenticador;
 // use Usuario;
 
-require '../src/Clases/Producto.php';
-// require_once '../src/Clases/Autenticador.php';
+require_once '../src/Clases/Producto.php';
+require_once '../src/Clases/Autenticador.php';
 
 class ProductosController
 {
@@ -22,16 +22,16 @@ class ProductosController
     public function POST_insertarProducto($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
-        $descripcion = $parametros['descripcion'];
-        $precio = $parametros['precio'];
+        $nombre = $parametros['nombre'];
         $sector = $parametros['sector'];
+        $precio = $parametros['precio'];
 
         if(in_array($sector, $this::$sectores))
         {
             $producto = new Producto();
-            $producto->descripcion = $descripcion;
-            $producto->precio = $precio;
+            $producto->nombre = $nombre;
             $producto->sector = $sector;
+            $producto->precio = $precio;
             $producto->insertarProducto();
             $payload = json_encode(array("Mensaje" => "Producto creado con exito"));
         }
@@ -57,6 +57,32 @@ class ProductosController
         return $response
         ->withHeader('Content-Type', 'application/json');
     }
+
+
+
+    public static function GET_TraerProductoId(Request $request, Response $response, array $args){
+        $param = $request->getQueryParams();
+        if(!isset($param['token'])){
+            $retorno = json_encode(array("mensaje" => "Token necesario"));
+        }
+        else{
+            $token = $param['token'];
+            $respuesta = Autenticador::validar_token($token, "Admin");
+            if($respuesta == "Validado"){
+                $idProducto = $param['id_producto'];
+                $productos = Producto::traer_un_producto_Id($idProducto);
+                // $productosFiltrados = Producto::filtrar_para_mostrar($productos);
+                // $retorno = json_encode(array("ListadoUsuarios"=>$productosFiltrados));
+                $retorno = json_encode(array("producto"=>$productos));
+            }
+            else{
+                $retorno = json_encode(array("mensaje" => $respuesta));
+            }
+        }
+        $response->getBody()->write($retorno);
+        return $response;
+    }
+
 
 
 

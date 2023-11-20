@@ -45,6 +45,7 @@ class Mesa
         $consulta->bindValue(2, $this->id, PDO::PARAM_INT);
         return$consulta->execute();
     }
+    
     public static function cambiarEstadoMesa_Id($estado, $id_mesa){
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
         $consulta =$objetoAccesoDato->retornarConsulta("UPDATE mesas set estado = ? where id = ?");

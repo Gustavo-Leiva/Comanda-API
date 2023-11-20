@@ -96,7 +96,15 @@ class MesasController
                         }
                     }
                     else{
-                        $retorno = json_encode(array("mensaje" => "Valor de estado no valido"));
+                        // $retorno = json_encode(array("mensaje" => "Valor de estado no valido. Ingrese opcion 1,2,3 u 4 
+                        // \n1)Con cliente esperando pedido
+                        // \n2)Con cliente comiendo
+                        // \n3)Con cliente pagando
+                        // \n4)Cerrada"));
+                        
+                        $mensaje = "Valor de estado no valido. Ingrese opcion 1, 2, 3 u 4 <br>1) Con cliente esperando pedido <br>2) Con cliente comiendo <br>3) Con cliente pagando<br>4) Cerrada";
+                        header("Content-Type: text/plain");
+                        $retorno = json_encode(array("mensaje" => $mensaje));
                     }
                 }    
             }       

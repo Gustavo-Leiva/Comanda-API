@@ -1,5 +1,6 @@
 <?php
 require_once '../src/Clases/Producto.php';
+
 class Pedido
 {
     public $id;
@@ -28,7 +29,11 @@ class Pedido
         $itemsJson = json_encode($this->items);
 		$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
 		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO pedidos (numero_pedido, items)VALUES('$this->numero_pedido','$itemsJson')");
-		$consulta->execute();
+		// $consulta = $objetoAccesoDato->retornarConsulta("INSERT INTO pedidos (numero_pedido, items) VALUES(:numero_pedido, :items)");
+        // $consulta->bindValue(':numero_pedido', $this->numero_pedido, PDO::PARAM_INT);
+        // $consulta->bindValue(':items', $itemsJson, PDO::PARAM_STR);
+
+        $consulta->execute();
 		return $objetoAccesoDato->retornarUltimoIdInsertado();
 	}
 
@@ -80,9 +85,9 @@ class Pedido
 	}
 
    
-    public function cargar_nuevo_item($id_producto)
+    public function cargar_nuevo_item($id)
     {
-        $producto = Producto::traer_un_producto_Id($id_producto);
+        $producto = Producto::traer_un_producto_Id($id);
         $producto_pedido = array(
             "nombre"=>$producto->nombre,
             "estado"=>0,
@@ -91,19 +96,34 @@ class Pedido
         array_push($this->items,$producto_pedido);
     }
 
-    public function cambiar_estado_item($id_producto, $estado)
+    public function cambiar_estado_item($id, $estado)
     {
         $sector = null;
-        $producto = Producto::traer_un_producto_Id($id_producto);
-        foreach($this->items as $i){
-            if($i->nombre == $producto->nombre){
+        $producto = Producto::traer_un_producto_Id($id);
+        foreach($this->items as $i){           
+             if($i->nombre == $producto->nombre){  // Corregido aquí
                 $i->estado = $estado;
                 $sector = $producto->sector;
+                return $sector;
             }
         }
-        return $sector;
+        return -1; 
+    }
+
+
+    public function cambiarEstadoPedido($estado){
+        $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
+        $consulta =$objetoAccesoDato->retornarConsulta("UPDATE pedidos set estado = ? where id = ?");
+        $consulta->bindValue(1, $estado, PDO::PARAM_INT);
+        $consulta->bindValue(2, $this->id, PDO::PARAM_INT);
+        return$consulta->execute();
     }
     
+
+      // if($i['nombre'] == $producto->nombre){
+            //     $i['estado'] = $estado;
+
+
     public function agregar_tiempo_item($id_producto, $tiempo_minutos)
     {
         $ok = false;
@@ -137,56 +157,123 @@ class Pedido
         return$consulta->execute();
     }
 
+    // public static function mapear_para_mostrar($array){
+    //     if(count($array) > 0){
+    //         foreach($array as $i){
+    //             if ($i->items) {  // Verificar si $i->items no es null
+    //             foreach($i->items as $p){
+    //                 if ($p) {  // Verificar si $p no es null
+    //                 switch($p->estado){
+    //                     case 0:
+    //                         $p->estado = "Pendiente";
+    //                     break;
+    //                     case 1:
+    //                         $p->estado = "En preparacion";
+    //                     break;
+    //                     case 2:
+    //                         $p->estado = "Listo para servir";
+    //                     break;
+    //                 }
+    //             }
+                
+    //         }
+    //       }
+    //    }
+    //  }
+    //     return $array;
+    // }
+
+
     public static function mapear_para_mostrar($array){
         if(count($array) > 0){
             foreach($array as $i){
                 foreach($i->items as $p){
-                    switch($p->estado){
-                        case 0:
-                            $p->estado = "Pendiente";
-                        break;
-                        case 1:
-                            $p->estado = "En preparacion";
-                        break;
-                        case 2:
-                            $p->estado = "Listo para servir";
-                        break;
+                    if (isset($p->estado)) {
+                        switch($p->estado){
+                            case 0:
+                                $p->estado = "Pendiente";
+                                break;
+                            case 1:
+                                $p->estado = "En preparacion";
+                                break;
+                            case 2:
+                                $p->estado = "Listo para servir";
+                                break;
+                        }
                     }
                 }
-                
             }
         }
         return $array;
     }
+    
 
     public static function filtrar_segun_sector($array, $sector, $estado = null){
         $arrayFiltrado = array();
         $itemsFiltrado = array();
+        
         if(count($array) > 0){
             foreach($array as $i){
                 foreach($i->items as $p){
-                    $producto = Producto::traer_un_producto_nombre($p->nombre);
-                    if($producto->sector == $sector){
-                        if($estado != null){
-                            if($p->estado == $estado){
+                    if (isset($p->estado)) {
+                        $producto = Producto::traer_un_producto_nombre($p->nombre);
+    
+                        // Verificar si $producto no es null antes de acceder a la propiedad 'sector'
+                        if ($producto !== null && $producto->sector == $sector) {
+                            if($estado != null){
+                                if($p->estado == $estado){
+                                    array_push($itemsFiltrado, $p);
+                                }
+                            } else {
                                 array_push($itemsFiltrado, $p);
                             }
-                            
-                        }
-                        else{
-                            array_push($itemsFiltrado, $p);
                         }
                     }
                 }
+                
                 $i->items = $itemsFiltrado;
                 $itemsFiltrado = array();
+                
                 if(count($i->items) > 0){
                     array_push($arrayFiltrado, $i);
                 }
             }
         }
+        
         return $arrayFiltrado;
     }
+    
+
+    // public static function filtrar_segun_sector($array, $sector, $estado = null){
+    //     $arrayFiltrado = array();
+    //     $itemsFiltrado = array();
+
+    //     if(count($array) > 0){
+    //         foreach($array as $i){
+    //             foreach($i->items as $p){
+    //                 $producto = Producto::traer_un_producto_nombre($p->nombre);
+
+    //                 if($producto->sector == $sector){
+    //                     if($estado != null){
+    //                         if($p->estado == $estado){
+    //                             array_push($itemsFiltrado, $p);
+    //                         }
+                            
+    //                     }
+    //                     else{
+    //                         array_push($itemsFiltrado, $p);
+    //                     }
+    //                 }
+    //             }
+    //             $i->items = $itemsFiltrado;
+    //             $itemsFiltrado = array();
+    //             if(count($i->items) > 0){
+    //                 array_push($arrayFiltrado, $i);
+    //             }
+    //         }
+    //     }
+    //     return $arrayFiltrado;
+    // }
 
     public static function filtrar_segun_estado($array, $estado){
         $arrayFiltrado = array();

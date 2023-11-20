@@ -57,9 +57,16 @@ class Comanda
     }
     public function alta_de_comanda()
     {
+		// $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
+		// $consulta =$objetoAccesoDato->retornarConsulta("insert into comandas (nombre_cliente, numero_pedido, id_mesa, fecha_alta, tiempo_alta)values('$this->nombre_cliente','$this->numero_pedido','$this->id_mesa', '$this->fecha_alta', '$this->tiempo_alta')");
 		$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-		$consulta =$objetoAccesoDato->retornarConsulta("insert into comandas (nombre_cliente, numero_pedido, id_mesa, fecha_alta, tiempo_alta)values('$this->nombre_cliente','$this->numero_pedido','$this->id_mesa', '$this->fecha_alta', '$this->tiempo_alta')");
-		$consulta->execute();
+        $consulta = $objetoAccesoDato->retornarConsulta("INSERT INTO comandas (nombre_cliente, numero_pedido, id_mesa, fecha_alta, tiempo_alta) VALUES(:nombre_cliente, :numero_pedido, :id_mesa, :fecha_alta, :tiempo_alta)");
+        $consulta->bindValue(':nombre_cliente', $this->nombre_cliente, PDO::PARAM_STR);
+        $consulta->bindValue(':numero_pedido', $this->numero_pedido, PDO::PARAM_INT);
+        $consulta->bindValue(':id_mesa', $this->id_mesa, PDO::PARAM_INT);
+        $consulta->bindValue(':fecha_alta', $this->fecha_alta, PDO::PARAM_STR);
+        $consulta->bindValue(':tiempo_alta', $this->tiempo_alta, PDO::PARAM_STR);        
+        $consulta->execute();
 		return $objetoAccesoDato->retornarUltimoIdInsertado();
     }
     public static function traer_todas_las_comandas()
@@ -116,7 +123,7 @@ class Comanda
         $consulta->bindValue(6, $this->numero_pedido, PDO::PARAM_INT);
         return $consulta->execute();
 	}
-    public static function mappeo_mejores_comentarios($arrray){
+    public static function mapeo_mejores_comentarios($arrray){
         
         $arrayMostrar = array();
         $buffer = array();

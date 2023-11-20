@@ -54,7 +54,7 @@ class Usuario
     public static function traer_todos_los_usuarios_EnArray()
 	{
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, sub_tipo as subTipo, sector as sector, email as email, contraseña as password, token as token, fecha_registro as fechaRegistro from usuarios");
+        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, sub_tipo as subTipo, sector as sector, email as email, password as password, token as token, fechaRegistro as fechaRegistro from usuarios");
         $consulta->execute();
         $usuarios = array();
         $arrayObtenido = $consulta->fetchAll(PDO::FETCH_OBJ);
@@ -87,7 +87,7 @@ class Usuario
         $consulta->execute();
         $usuarioBuscado= $consulta->fetchObject();
         if($usuarioBuscado != null){
-            $usuario = new Usuario($usuarioBuscado->nombre, $usuarioBuscado->apellido, $usuarioBuscado->tipo, $usuarioBuscado->email, $usuarioBuscado->password, $usuarioBuscado->sub_tipo, $usuarioBuscado->sector,$usuarioBuscado->fechaRegistro, $usuarioBuscado->id ,  $usuarioBuscado->token);
+            $usuario = new Usuario($usuarioBuscado->nombre, $usuarioBuscado->apellido, $usuarioBuscado->tipo, $usuarioBuscado->email, $usuarioBuscado->password, $usuarioBuscado->sub_tipo, $usuarioBuscado->sector,$usuarioBuscado->fechaRegistro, $usuarioBuscado->id,  $usuarioBuscado->token);
         }
         return $usuario;
 	}
@@ -120,15 +120,40 @@ class Usuario
         return$consulta->execute();
     }
 
-    public static function filtrar_para_mostrar($array){
-        if(count($array) > 0){
-            foreach($array as $i){
-                unset($i->password);
-                unset($i->token);
+    // public static function filtrar_para_mostrar($array){
+    //     if($array !== null && count($array) > 0){
+    //         foreach($array as $i){
+    //             unset($i->password);
+    //             unset($i->token);
+    //         }
+    //         return $array;
+    //     }
+
+    //     return [];
+    // }
+
+    public static function filtrar_para_mostrar($arrayOrObject){
+        if($arrayOrObject !== null){
+            // Si es un array, simplemente lo devolvemos
+            if(is_array($arrayOrObject)){
+                return $arrayOrObject;
             }
-            return $array;
+    
+            // Si es un objeto Usuario, lo convertimos a un array antes de filtrar
+            if(is_object($arrayOrObject) && $arrayOrObject instanceof Usuario){
+                $arrayOrObject = (array) $arrayOrObject;
+            }
+    
+            // Filtramos y eliminamos las claves sensibles
+            unset($arrayOrObject['password']);
+            unset($arrayOrObject['token']);
+    
+            return $arrayOrObject;
         }
+    
+        return [];
     }
+    
 
     public static function filtrar_para_guardar($array){
         if(count($array) > 0){

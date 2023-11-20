@@ -29,19 +29,29 @@ class Autenticador
     public static function validar_token($token, $tipo, $sector = null){
         $usuario = null;
         $resp = "No autorizado";
+
+        // Verificar si el token es nulo
+        if ($token === null) {
+            return "Token no proporcionado";
+        }
         try {
             $decodificado = JWT::decode(
                 $token,
-            new Key(self::$claveSecreta, self::$tipoEncriptacion)
+                new Key(self::$claveSecreta, self::$tipoEncriptacion)
             );
-        $usuario = Usuario::traer_un_usuarioId($decodificado->data->id);
+
+            var_dump("Tipo de Usuario: $tipo, Sector: $sector, Usuario ID: " . $decodificado->data->id);
+
+            $usuario = Usuario::traer_un_usuarioId($decodificado->data->id);
         if($usuario != null && $usuario->tipo == $tipo){
             if($sector != null){
                 if($usuario->sector == $sector){
                     $resp =  "Validado";
                 }
-            }
-            else{
+                 else {
+                    throw new Exception("No autorizado: El usuario no tiene acceso al sector requerido.");
+                }
+           }else{
                 $resp =  "Validado";
             }
           }
@@ -53,10 +63,18 @@ class Autenticador
                 case "Signature verification failed":
                     $resp = "Token invalido";
                     break;
+                default:
+                // $resp = "No autorizado: " . $e->getMessage();
+                $resp = "No autorizado: " . $e->getMessage() . " - Tipo: $tipo, Sector: $sector, Usuario ID: " . $decodificado->data->id;
+                break;
             }
-            die(json_encode(array("mensaje" => $resp)));
+            // die(json_encode(array("mensaje" => $resp)));
+            // die(json_encode(array("mensaje" => "No autorizado: " . $e->getMessage())));
         }
         return $resp;
+
+       
+
     }
 
     
