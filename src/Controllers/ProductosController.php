@@ -4,11 +4,11 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 use Producto;
-use Autenticador;
+use AutentificadorJWT;
 // use Usuario;
 
 require_once '../src/Clases/Producto.php';
-require_once '../src/Clases/Autenticador.php';
+require_once '../src/Clases/AutentificadorJWT.php';
 
 class ProductosController
 {
@@ -19,6 +19,7 @@ class ProductosController
 
     public static $sectores = array("Vinoteca", "Cerveceria", "Cocina", "CandyBar");
 
+    //ok visto
     public function POST_insertarProducto($request, $response, $args)
     {
         $parametros = $request->getParsedBody();
@@ -47,12 +48,11 @@ class ProductosController
 
  
 
-
+   //ok visto
     public function GET_traerTodos($request, $response, $args)
     {
         $lista = Producto::obtenerTodos();
         $payload = json_encode(array("listaProducto" => $lista));
-
         $response->getBody()->write($payload);
         return $response
         ->withHeader('Content-Type', 'application/json');
@@ -60,28 +60,25 @@ class ProductosController
 
 
 
-    public static function GET_TraerProductoId(Request $request, Response $response, array $args){
+    //ok
+    public static function GET_TraerProductoId(Request $request, Response $response, array $args)
+    {
         $param = $request->getQueryParams();
-        if(!isset($param['token'])){
-            $retorno = json_encode(array("mensaje" => "Token necesario"));
+        $idProducto = $param['id_producto'];
+        $productos = Producto::traer_un_producto_Id($idProducto);
+    
+        if ($productos !== null) {
+            // Puedes habilitar esta línea si necesitas filtrar los productos antes de enviar la respuesta
+            // $productosFiltrados = Producto::filtrar_para_mostrar($productos);
+            $retorno = json_encode(array("producto" => $productos));
+        } else {
+            $retorno = json_encode(array("mensaje" => "Producto no encontrado"));
         }
-        else{
-            $token = $param['token'];
-            $respuesta = Autenticador::validar_token($token, "Admin");
-            if($respuesta == "Validado"){
-                $idProducto = $param['id_producto'];
-                $productos = Producto::traer_un_producto_Id($idProducto);
-                // $productosFiltrados = Producto::filtrar_para_mostrar($productos);
-                // $retorno = json_encode(array("ListadoUsuarios"=>$productosFiltrados));
-                $retorno = json_encode(array("producto"=>$productos));
-            }
-            else{
-                $retorno = json_encode(array("mensaje" => $respuesta));
-            }
-        }
+    
         $response->getBody()->write($retorno);
         return $response;
     }
+    
 
 
 

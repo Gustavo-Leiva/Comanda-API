@@ -12,6 +12,7 @@ class Usuario
     public $password;
     public $token;
     public $fechaRegistro;
+    
 
     public function __construct($nombre, $apellido, $tipo, $email, $password = null, $subTipo = null, $sector = null, $fechaRegistro = null, $id = null, $token = null)
     {
@@ -44,17 +45,23 @@ class Usuario
             $this->token = $token;
         }
     }
+
+    //ok visto
     public function insertarUsuario()
 	{
 		$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO usuarios (nombre,apellido,tipo, sub_tipo, sector, email, password, token, fechaRegistro)values('$this->nombre','$this->apellido','$this->tipo', '$this->subTipo', '$this->sector', '$this->email', '$this->password', '$this->token', '$this->fechaRegistro')");
+		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO usuarios (nombre,apellido,tipo, subTipo, sector, email, password, token, fechaRegistro)values('$this->nombre','$this->apellido','$this->tipo', '$this->subTipo', '$this->sector', '$this->email', '$this->password', '$this->token', '$this->fechaRegistro')");
 		$consulta->execute();
 		return $objetoAccesoDato->retornarUltimoIdInsertado();
 	}
+    
+  
+    
+
     public static function traer_todos_los_usuarios_EnArray()
 	{
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, sub_tipo as subTipo, sector as sector, email as email, password as password, token as token, fechaRegistro as fechaRegistro from usuarios");
+        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, subTipo as subTipo, sector as sector, email as email, password as password, token as token, fechaRegistro as fechaRegistro from usuarios");
         $consulta->execute();
         $usuarios = array();
         $arrayObtenido = $consulta->fetchAll(PDO::FETCH_OBJ);
@@ -64,10 +71,12 @@ class Usuario
         }
         return $usuarios;
 	}
+
+    //ok visto
     public static function traer_todos_los_usuarios()
 	{
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, sub_tipo as subTipo, sector as sector, email as email, password as password, token as token, fechaRegistro as fechaRegistro from usuarios");
+        $consulta =$objetoAccesoDato->retornarConsulta("SELECT id as id, nombre as nombre, apellido as apellido, tipo as tipo, subTipo as subTipo, sector as sector, email as email, password as password, token as token, fechaRegistro as fechaRegistro from usuarios");
         $consulta->execute();
         $arrayObtenido = array();
         $usuarios = array();
@@ -87,7 +96,7 @@ class Usuario
         $consulta->execute();
         $usuarioBuscado= $consulta->fetchObject();
         if($usuarioBuscado != null){
-            $usuario = new Usuario($usuarioBuscado->nombre, $usuarioBuscado->apellido, $usuarioBuscado->tipo, $usuarioBuscado->email, $usuarioBuscado->password, $usuarioBuscado->sub_tipo, $usuarioBuscado->sector,$usuarioBuscado->fechaRegistro, $usuarioBuscado->id,  $usuarioBuscado->token);
+            $usuario = new Usuario($usuarioBuscado->nombre, $usuarioBuscado->apellido, $usuarioBuscado->tipo, $usuarioBuscado->email, $usuarioBuscado->password, $usuarioBuscado->subTipo, $usuarioBuscado->sector,$usuarioBuscado->fechaRegistro, $usuarioBuscado->id,  $usuarioBuscado->token);
         }
         return $usuario;
 	}
@@ -105,7 +114,7 @@ class Usuario
             $usuario = new Usuario($usuarioBuscado->nombre, $usuarioBuscado->apellido, $usuarioBuscado->tipo, $usuarioBuscado->email);
             $usuario->id = $usuarioBuscado->id;
             $usuario->token = $usuarioBuscado->token;
-            $usuario->subTipo = $usuarioBuscado->sub_tipo;
+            $usuario->subTipo = $usuarioBuscado->subTipo;
             $usuario->sector = $usuarioBuscado->sector;
             $usuario->fechaRegistro = $usuarioBuscado->fechaRegistro;
             $usuario->password = $usuarioBuscado->password;

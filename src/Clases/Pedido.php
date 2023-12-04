@@ -6,8 +6,10 @@ class Pedido
     public $id;
     public $numero_pedido;
     public $items;
+    public $idMesa;
+    public $idMozo;
 
-    public function __construct($items = null, $numero_pedido = null, $id = null)
+    public function __construct($items = null, $numero_pedido = null, $id = null,$idMesa=null, $idMozo=null)
     {
         $this->items = array();
         if($items != null){
@@ -22,13 +24,20 @@ class Pedido
         if($id != null){
             $this->id = $id;
         }
+
+        if($idMesa != null){
+            $this->idMesa = $idMesa;
+        }
+        if($idMozo != null){
+            $this->idMozo = $idMozo;
+        }
     }
 
     public function alta_pedido()
 	{
         $itemsJson = json_encode($this->items);
 		$objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO pedidos (numero_pedido, items)VALUES('$this->numero_pedido','$itemsJson')");
+		$consulta =$objetoAccesoDato->retornarConsulta("INSERT INTO pedidos (numero_pedido, items,idMesa,idMozo)VALUES('$this->numero_pedido','$itemsJson','$this->idMesa','$this->idMozo')");
 		// $consulta = $objetoAccesoDato->retornarConsulta("INSERT INTO pedidos (numero_pedido, items) VALUES(:numero_pedido, :items)");
         // $consulta->bindValue(':numero_pedido', $this->numero_pedido, PDO::PARAM_INT);
         // $consulta->bindValue(':items', $itemsJson, PDO::PARAM_STR);
@@ -41,18 +50,55 @@ class Pedido
 	{
         $pedido = null;
         $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
-        $consulta =$objetoAccesoDato->retornarConsulta("select id as id, numero_pedido as numero_pedido, items as items from pedidos");
+        $consulta =$objetoAccesoDato->retornarConsulta("select id as id, numero_pedido as numero_pedido, items as items, idMesa as idMesa, idMozo as idMozo from pedidos");
         $consulta->execute();
         $arrayObtenido = array();
-        $pedidos = array();
+        $pedidos = array();    
+        
+
         $arrayObtenido = $consulta->fetchAll(PDO::FETCH_OBJ);
         foreach($arrayObtenido as $i){
             $itemsJson = json_decode($i->items);
-            $pedido = new Pedido($itemsJson, $i->numero_pedido, $i->id );
+            $pedido = new Pedido($itemsJson, $i->numero_pedido, $i->id, $i->idMesa,$i->idMozo);
             $pedidos[] = $pedido;
         }
         return $pedidos;
 	}
+
+
+//     public static function obtener_todos_los_pedidos()
+// {
+//     $objetoAccesoDato = AccesoDatos::obtenerConexionDatos(); 
+//     $consulta = $objetoAccesoDato->retornarConsulta("SELECT id, numero_pedido, items, idMesa, idMozo FROM pedidos");
+//     $consulta->execute();
+    
+//     $pedidos = array();
+//     foreach ($consulta->fetchAll(PDO::FETCH_OBJ) as $i) {
+//         $itemsJson = $i->items;
+//         $productos = array();
+
+//         // Verifica si $itemsJson no es nulo antes de decodificar
+//         if ($itemsJson !== null) {
+//             $itemsDecodificados = json_decode($itemsJson);
+            
+//             // Si la decodificación es exitosa, agrega los productos
+//             if ($itemsDecodificados !== null) {
+//                 foreach ($itemsDecodificados as $itemId) {
+//                     $producto = Producto::traer_un_producto_Id($itemId);
+//                     if ($producto) {
+//                         $productos[] = $producto->nombre;
+//                     }
+//                 }
+//             }
+//         }
+
+//         $pedido = new Pedido($productos, $i->numero_pedido, $i->id, $i->idMesa, $i->idMozo);
+//         $pedidos[] = $pedido;
+//     }
+
+//     return $pedidos;
+// }
+
 
     public static function traer_un_pedido_Id($id) 
 	{
@@ -138,13 +184,22 @@ class Pedido
     }
 
     public function calcular_tiempo_total_pedido(){
-        $tiempo_demora = 0;
-        foreach($this->items as $i){
-            if($i->tiempo > $tiempo_demora){
-                $tiempo_demora = $i->tiempo;
-            }       
+        // $tiempo_inicial = 0;
+        // $tiempo_demora = 0;
+        // foreach($this->items as $i){
+        //     if($i->tiempo > $tiempo_inicial){
+        //         $tiempo_demora = $i->tiempo;
+        //     }       
+        // }
+        // return $tiempo_demora;
+
+        $tiempo_total = 0;
+
+        foreach ($this->items as $item) {
+            $tiempo_total += $item->tiempo;
         }
-        return $tiempo_demora;
+    
+        return $tiempo_total;
     }
     
     public function actualizar_items_BD()
